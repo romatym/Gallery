@@ -1,44 +1,52 @@
 import React, { Component } from "react";
-//import PropTypes from "prop-types";
 import ImageItem from "./ImageItem";
-//import _ from "lodash";
-//import queryString from "querystring";
-//import { API_URL, API_KEY_3 } from "../../api/api";
 
 export default class ImageList extends Component {
-  static propTypes = {
-    // onChangeTotalPages: PropTypes.func.isRequired
-  };
-
   constructor() {
     super();
 
     this.initialState = {
       loaded: false,
+      autoRefresh: false,
+      numberOfCommentsFilter: 0,
       posts: []
     };
     this.state = this.initialState;
   }
 
-  getImages = filters => {
-    //const { numberOfComments } = filters;
-    // const queryStringParams = {
-    //   api_key: API_KEY_3,
-    //   language: "ru-RU"
-    // };
+  handleClick = () => {
+    this.setState(() => ({
+        autoRefresh: !this.state.autoRefresh
+      }),
+      this.switchRefresh
+    );
+  };
 
-    // if (numberOfComments > 0) {
-    //   queryStringParams.numberOfComments = numberOfComments;
-    // }
-    // const link = `${API_URL}/discover/image?${queryString.stringify(
-    //   queryStringParams
-    // )}`;
+  switchRefresh = () => {
+    if (this.state.autoRefresh) {
+      this.interval = setInterval(() => {
+        this.getImages(this.props.filters);
+      }, 3000);
+      //console.log("setInterval");
+    } else {
+      clearInterval(this.interval);
+      //console.log("clearInterval");
+    }
+  };
+
+  onChangeFilter = event => {
+    const { value } = event.target;
+    this.setState({
+      numberOfCommentsFilter: Number(value)
+    });
+  };
+
+  componentDidMount() {
+    this.getImages();
+  }
+
+  getImages = () => {
     const link = "https://www.reddit.com/r/reactjs.json?limit=100";
-
-    // const oldLink =
-    //   `${API_URL}/discover/image?api_key=${API_KEY_3}&language=ru-RU&sort_by=${sort_by}&page=${page}` +
-    //   (release_year ? `&primary_release_year=${release_year}` : "") +
-    //   (with_genres.length > 0 ? `&with_genres=${with_genres.join()}` : "");
 
     fetch(link)
       .then(response => {
@@ -47,43 +55,61 @@ export default class ImageList extends Component {
       })
       .then(response => {
         const postsArray = response.data.children.sort((elem1, elem2) => {
-          return elem2.data.num_comments - elem1.data.num_comments
+          return elem2.data.num_comments - elem1.data.num_comments;
         });
 
         this.setState({
           posts: postsArray
         });
-        // this.props.onChangeTotalPages(data.total_pages);
+
       });
   };
 
-  componentDidMount() {
-    this.getImages(this.props.filters);
-  }
-
-  // componentDidUpdate(prevProps) {
-  //   if (!_.isEqual(this.props.filters, prevProps.filters)) {
-  //     this.setState({ loaded: false });
-  //     this.getImages(this.props.filters, this.props.onChangeTotalPages);
-  //   }
-  // }
-
   render() {
-    const { posts } = this.state;
-
-    //console.log("posts", posts);
+    const { posts, numberOfCommentsFilter } = this.state;
 
     return (
-      <div className="row">
-        {!this.state.loaded && <div className="loader"></div>}
+      <div>
+        <form className="range-field my-4 w-75">
+          <button
+            type="button"
+            className="btn btn-secondary btn-refresh"
+            onClick={this.handleClick}
+          >
+            {this.state.autoRefresh
+              ? "Stop auto refresh"
+              : "Start auto refresh"}
+          </button>
+          <div className="form-group">
+            <label htmlFor="formControlRange">
+              {"Current filter: " + numberOfCommentsFilter}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="200"
+              className="form-control-range"
+              id="formControlRange"
+              name="numberOfCommentsFilter"
+              value={numberOfCommentsFilter}
+              onChange={this.onChangeFilter}
+            ></input>
+          </div>
+        </form>
 
-        {posts.map(post => {
-          return (
-            <div key={post.data.id} className="col-6 mb-4">
-              <ImageItem item={post.data} />
-            </div>
-          );
-        })}
+        <div className="row">
+          {!this.state.loaded && <div className="loader"></div>}
+
+          {posts
+            .filter(post => post.data.num_comments >= numberOfCommentsFilter)
+            .map(post => {
+              return (
+                <div key={post.data.id} className="col-6 mb-4">
+                  <ImageItem item={post.data} />
+                </div>
+              );
+            })}
+        </div>
       </div>
     );
   }
