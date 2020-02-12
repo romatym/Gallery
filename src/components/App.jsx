@@ -16,8 +16,11 @@ export default class App extends React.Component {
     this.state = this.initialState;
   }
 
-  onChangeFilter = event => {
-    const { value } = event.target;
+  onChangeFilter = (event, value) => {
+    //const { value } = event.target;
+
+    // console.log("onChangeFilter", event.target);
+
     this.setState({
       numberOfCommentsFilter: Number(value),
     });
