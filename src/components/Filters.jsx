@@ -25,34 +25,39 @@ export default function Filters(props) {
 
   return (
     <div className="container">
-      <form className="range-field my-4 w-75 ">
-        <div className="form-group width-50">
-          <div className={classes.margin} />
-          <Typography id="discrete-slider-small-steps" gutterBottom>
-            Number of comments
-          </Typography>
-          <Slider
-            defaultValue={0}
-            aria-labelledby="discrete-slider-small-steps"
-            step={5}
-            marks
-            min={0}
-            max={200}
-            valueLabelDisplay="on"
-            name="numberOfCommentsFilter"
-            value={numberOfCommentsFilter}
-            onChange={onChangeFilter}
-          />
-          {/* <div className={classes.margin} /> */}
-        </div>
-      </form>
-      <button
-        type="button"
-        className="btn btn-secondary btn-refresh"
-        onClick={onChangeRefresh}
-      >
-        {autoRefresh ? "Stop auto refresh" : "Start auto refresh"}
-      </button>
+      <div className="one-line">
+        <button
+          type="button"
+          className="btn btn-secondary btn-refresh"
+          onClick={onChangeRefresh}
+        >
+          {autoRefresh ? "Stop auto refresh" : "Start auto refresh"}
+        </button>
+      </div>
+
+      <div className="form-group slider-filter ">
+        <div className={classes.margin} />
+        <Typography
+          id="discrete-slider-small-steps"
+          gutterBottom
+          align="center"
+        >
+          Number of comments
+        </Typography>
+        <Slider
+          defaultValue={0}
+          aria-labelledby="discrete-slider-small-steps"
+          step={5}
+          marks
+          min={0}
+          max={200}
+          valueLabelDisplay="on"
+          name="numberOfCommentsFilter"
+          value={numberOfCommentsFilter}
+          onChange={onChangeFilter}
+        />
+        {/* <div className={classes.margin} /> */}
+      </div>
     </div>
   );
 }

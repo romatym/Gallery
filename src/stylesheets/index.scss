@@ -30,8 +30,10 @@ body {
   animation: spin 2s linear infinite;
 }
 
-.width-50 {
-  max-width: 50%;
+.slider-filter {
+  width: 50%;
+  margin-left: 1rem;
+  display: inline-block;
 }
 
 .one-line {
